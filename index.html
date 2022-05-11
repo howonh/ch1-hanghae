@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <title>칼로리 계산기 main</title>
+
+    <!-- Bulma CSS 링크 -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.1/css/bulma.min.css">
+
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC"
+          crossorigin="anonymous">
+
+    <!-- JS -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-cookie/1.4.1/jquery.cookie.js"></script>
+
+    <!-- font -->
+    <link href="https://fonts.googleapis.com/css2?family=Do+Hyeon&display=swap" rel="stylesheet">
+
+    <style>
+        * {
+            font-family: 'Do Hyeon', sans-serif;
+        }
+        .background {
+            background-image: url("https://img.freepik.com/free-vector/gym-for-fitness-and-workout-exercise-illustration-man-woman-people-character-training-sport-cartoon-healthy-lifestyle_109722-2008.jpg?w=2000");
+            background-repeat: no-repeat;
+            background-size: cover;
+            height: 100vh;
+            background-position: center;
+        }
+        .level-item {
+            width: 95%;
+            max-width: 300px;
+            height: 95%;
+            max-height: 300px;
+            margin: auto 200px auto 800px;
+        }
+
+        .level-item1 {
+            margin-right: 300px;
+        }
+
+        .section {
+            width: 600px;
+            max-width: 100vw;
+            margin: auto auto 50px auto;
+            box-shadow: 0px 0px 3px 0px gray;
+            background-color: white;
+        }
+
+        .button {
+            display: block;
+            margin: 10px auto;
+        }
+
+        .main_post {
+            width: 600px;
+            max-width: 100vw;
+            margin: auto auto 50px auto;
+            box-shadow: 0px 0px 3px 0px gray;
+            padding-top: 50px;
+            padding-bottom: 50px;
+            background-color: white;
+
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+
+        }
+
+        .select_box {
+            width: 300px;
+        }
+
+        .input {
+            display: block;
+            margin: 50px auto 30px auto;
+            width: 300px;
+        }
+
+        .card {
+            display: block;
+            margin: 50px auto;
+            width: 300px;
+        }
+
+        .content {
+            text-align: center;
+            display: flex;
+
+        }
+
+        #result_card {
+            display: none;
+        }
+        .result_box {
+            margin-left: 10px;
+            margin-right: 10px;
+        }
+
+
+
+    </style>
+    <script>
+
+        function gotya(bigseg) {
+            var getvalue = $(bigseg).val();
+            console.log('getvalue : ' + getvalue)
+            if (getvalue == 'uSanSo') {
+                $('#SmallSegment').empty(); // 두번째 SELECT BOX 에 추가하기 전에 초기화 합니다. !!
+                uSanSo_list_up();
+            } else if (getvalue == 'health') {
+                $('#SmallSegment').empty();
+                health_list_up();
+            }
+            // 두번째 SELECT BOX 의 기본값이 숨김이라, 두번째 SELECT BOX 생성한 후 보여줍니다.
+            $('#SmallSegment').show()
+
+            // 전역변수 already_selected 로 운동 분류를 선택했는지 검사합니다.
+            already_selected = true;
+        };
+
+        // 내부 데이터 불러오기
+        function uSanSo_list_up() {
+            $.ajax({
+                type: "GET",
+                url: "/givemethat/uSanSo",
+                data: {},
+                success: function (response) {
+                    let uSanSo_row = response['uSanSo'];
+                    for (let i = 0; i < uSanSo_row.length; i++) {
+                        let exer_name = uSanSo_row[i]['exer_name'];
+                        $('#SmallSegment').append(`<option value=${exer_name}>${exer_name}</option>`)
+                    }
+                }
+            });
+        }
+
+        function health_list_up() {
+            $.ajax({
+                type: "GET",
+                url: "/givemethat/health",
+                data: {},
+                success: function (response) {
+                    let health_row = response['health'];
+                    for (let i = 0; i < health_row.length; i++) {
+                        let exer_name = health_row[i]['exer_name'];
+                        $('#SmallSegment').append(`<option value=${exer_name}>${exer_name}</option>`)
+                    }
+                }
+            })
+        }
+
+        function call_result() {
+            console.log(window.already_selected);
+            if (window.already_selected == true) {
+                let weight = $('#weight_give').val();
+                let cal = $('#cal_give').val();
+                let time = $('#time_give').val();
+                if (canyourunit(weight, cal, time) == false) {
+                    alert('숫자를 입력해주세요.');
+                } else {
+                    $.ajax({
+                        type: "POST",
+                        url: "/givemeresult",
+                        data: {exer_type_give: $('#BigSegment').val(), exer_name_give: $('#SmallSegment').val()},
+                        success: function (response) {
+                            let met = response['met']['met'];
+                            let result = (met * weight * time) / cal;
+                            let real_result = Math.round(result)
+                            $('#result').append(`<span>${real_result}</span>`);
+                            $('#result_card').show()
+                        }
+                    })
+                }
+            } else {
+                alert('먼저 운동을 선택해주세요.')
+            }
+        }
+
+        function canyourunit(...name) {
+            var regExp = /^[0-9]+$/;
+            for (let i = 0; i < name.length; i++) {
+                if (!regExp.test(name[i])) {
+                    return false;
+                }
+            }
+        };
+
+        {#돌아가는 링크를 수정해야합니다#}
+        function sign_out() {
+            $.removeCookie('mytoken', {path: '/'});
+            alert('로그아웃!')
+            window.location.href = "/"
+            }
+
+    </script>
+</head>
+<body class="background">
+<nav class="level">
+
+    <p class="level-item has-text-centered">
+        <img src="https://velog.velcdn.com/images/ihowork/post/c8bd56ba-7d0d-41be-a9ac-c9766b998d46/image.png">
+    </p>
+
+    <div class="level-item1 has-text-centered">
+        <button class="button is-danger" type="reset" onclick="sign_out()">로그아웃</button>
+    </div>
+</nav>
+
+<section class="section">
+    <div class="container">
+        <h1 class="title">MET지수란?</h1>
+        <h2 class="subtitle">
+            MET는 1분간 소비되는 단위 체중당 에너지 소비량(kcal)입니다.<br>
+            MET가 높은 운동일수록 많은 에너지가 소비됩니다.
+        </h2>
+    </div>
+</section>
+
+
+<div class="main_post">
+
+
+    <select class="form-select form-select-lg mb-3 select_box" id="BigSegment" aria-label=".form-select-lg example" onchange="gotya(this)">
+            <option>운동분류 선택</option>
+            <option value="uSanSo">유산소</option>
+            <option value="health">헬스</option>
+    </select>
+    <select class="form-select form-select-lg mb-3 select_box" id="SmallSegment" aria-label=".form-select-lg example" style="display: none;" onchange="getya(this)">
+            <option>선택</option>
+    </select>
+
+
+    <div>
+        <input class="input is-normal" type="text" placeholder="체중을 입력해주세요. (Kg)" id="weight_give">
+        <input class="input is-normal" type="text" placeholder="시간을 입력해주세요. (분)" id="time_give">
+        <input class="input is-normal" type="text" placeholder="목표 칼로리를 입력해주세요. (Kcal)" id="cal_give">
+        <button class="button is-black is-active" onclick="call_result()">계산하기</button>
+    </div>
+    <div class="card" id="result_card">
+        <div class="card-content">
+            <div class="content">
+                <p>예상 소모 칼로리는 </p>
+                <div class="result_box" id="result">
+
+                </div>
+
+                <p>Kcal 입니다.</p>
+
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>
