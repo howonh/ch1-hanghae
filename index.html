@@ -40,10 +40,11 @@
             max-width: 300px;
             height: 95%;
             max-height: 300px;
-            margin: auto 200px auto 800px;
+            margin: auto 200px auto 700px;
+            text-align: center;
         }
 
-        .level-item1 {
+        .level-right {
             margin-right: 300px;
         }
 
@@ -119,6 +120,9 @@
             } else if (getvalue == 'health') {
                 $('#SmallSegment').empty();
                 health_list_up();
+            } else if (getvalue == 'health3') {
+                $('#SmallSegment').empty();
+                health3_list_up();
             }
             // 두번째 SELECT BOX 의 기본값이 숨김이라, 두번째 SELECT BOX 생성한 후 보여줍니다.
             $('#SmallSegment').show()
@@ -152,6 +156,21 @@
                     let health_row = response['health'];
                     for (let i = 0; i < health_row.length; i++) {
                         let exer_name = health_row[i]['exer_name'];
+                        $('#SmallSegment').append(`<option value=${exer_name}>${exer_name}</option>`)
+                    }
+                }
+            })
+        }
+
+        function health3_list_up() {
+            $.ajax({
+                type: "GET",
+                url: "/givemethat/health3",
+                data: {},
+                success: function (response) {
+                    let health3_row = response['health3'];
+                    for (let i = 0; i < health3_row.length; i++) {
+                        let exer_name = health3_row[i]['exer_name'];
                         $('#SmallSegment').append(`<option value=${exer_name}>${exer_name}</option>`)
                     }
                 }
@@ -210,7 +229,7 @@
         <img src="https://velog.velcdn.com/images/ihowork/post/c8bd56ba-7d0d-41be-a9ac-c9766b998d46/image.png">
     </p>
 
-    <div class="level-item1 has-text-centered">
+    <div class="level-right">
         <button class="button is-danger" type="reset" onclick="sign_out()">로그아웃</button>
     </div>
 </nav>
@@ -233,6 +252,7 @@
             <option>운동분류 선택</option>
             <option value="uSanSo">유산소</option>
             <option value="health">헬스</option>
+            <option value="health3">3번째항목</option>
     </select>
     <select class="form-select form-select-lg mb-3 select_box" id="SmallSegment" aria-label=".form-select-lg example" style="display: none;" onchange="getya(this)">
             <option>선택</option>
@@ -243,7 +263,7 @@
         <input class="input is-normal" type="text" placeholder="체중을 입력해주세요. (Kg)" id="weight_give">
         <input class="input is-normal" type="text" placeholder="시간을 입력해주세요. (분)" id="time_give">
         <input class="input is-normal" type="text" placeholder="목표 칼로리를 입력해주세요. (Kcal)" id="cal_give">
-        <button class="button is-black is-active" onclick="call_result()">계산하기</button>
+        <button class="button is-primary is-active" onclick="call_result()">계산하기</button>
     </div>
     <div class="card" id="result_card">
         <div class="card-content">
