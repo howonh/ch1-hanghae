@@ -23,5 +23,6 @@ https://www.youtube.com/watch?v=DVFOxvptzC8
 * Git
 
 # 4. 프로젝트 회고
-* https://velog.io/@ilralz25?tag=TIL
-* https://walgu01.tistory.com/7
+* 홍예준 : https://walgu01.tistory.com/7
+* 홍승현 : https://velog.io/@ilralz25?tag=TIL
+* 한호원 : https://velog.io/@ihowork/항해99-ch.1-미니프로젝트-후기와-TIL
