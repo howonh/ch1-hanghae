@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>칼로리 계산기</title>
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-cookie/1.4.1/jquery.cookie.js"></script>
+
+    <script>
+        // {% if msg %}
+        //     alert("{{ msg }}")
+        // {% endif %}
+
+
+        function showPopup() {
+            window.open("/detail", "a", "width=500, height=400, left=100, top=50");
+        }
+
+        function sign_in() {
+            let username = $('#input-username').val()
+            let password = $('#input-password').val()
+            console.log(username);
+
+            if (username == "") {
+                $("#help-id-login").text("아이디를 입력해주세요.")
+                $("#input-username").focus()
+                return;
+            } else {
+                $("#help-id-login").text("")
+            }
+
+            if (password == "") {
+                $("#help-password-login").text("비밀번호를 입력해주세요.")
+                $("#input-password").focus()
+                return;
+            } else {
+                $("#help-password-login").text("")
+            }
+            console.log('값 보내기 성공!')
+            $.ajax({
+                type: "POST",
+                url: "/sign_in",
+                data: {
+                    username_give: username,
+                    password_give: password
+                },
+                async: false,
+                success: function (response) {
+                    console.log('서버 연결 성공!');
+                    if (response['result'] == 'success') {
+                        console.log('로그인 성공')
+                        $.cookie('mytoken', response['token'], {path: '/'});
+                        window.location.href = '/main';
+                    } else {
+                        console.log('서버 연결 실패');
+                        alert(response['msg']);
+                    }
+                }
+            });
+        }
+    </script>
+</head>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.1/css/bulma.min.css">
+<style>
+    .background {
+        background-image: url("https://img.freepik.com/free-vector/gym-for-fitness-and-workout-exercise-illustration-man-woman-people-character-training-sport-cartoon-healthy-lifestyle_109722-2008.jpg?w=2000");
+        background-repeat: no-repeat;
+        background-size: cover;
+        height: 100vh;
+        background-position: center;
+    }
+
+    .button.is-primary {
+        border-color: transparent;
+        color: #fff !important;
+    }
+
+    .box {
+        max-width: 480px;
+        margin: auto;
+        margin-top: 50px;
+    }
+
+    .buttons {
+        display: flex;
+    }
+
+</style>
+<body>
+<div class="background">
+    <table></table>
+    <form class="box">
+        <div class="field">
+            <label class="label">ID</label>
+            <div class="control">
+                <input id="input-username" class="input" type="email" placeholder="example@gmail.com">
+            </div>
+        </div>
+
+        <div class="field">
+            <label class="label">Password</label>
+            <div class="control">
+                <input id="input-password" class="input" type="password" placeholder="********">
+            </div>
+        </div>
+        <div class="buttons">
+            <button class="level-item button is-primary" type="reset" onclick="sign_in()">로그인</button>
+            <button class="level-item button is-primary" onclick="showPopup()">회원가입</button>
+        </div>
+    </form>
+</div>
+</body>
+</html>
