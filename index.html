@@ -32,9 +32,9 @@
         .background {
             background-image: url("https://img.freepik.com/free-vector/gym-for-fitness-and-workout-exercise-illustration-man-woman-people-character-training-sport-cartoon-healthy-lifestyle_109722-2008.jpg?w=2000");
             background-repeat: no-repeat;
-            background-size: 100%;
+            background-size: cover;
             height: 100vh;
-            background-position: top;
+            background-position: center;
         }
 
         .level-item {
@@ -133,7 +133,6 @@
 
 
         // make_ajax_call() 함수는 parameter 로 받은 운동 분류에 따라 두번째 SELECT BOX 에 option 을 추가합니다.
-
         function make_ajax_call(exer_type) {
             $.ajax({
                 type: "POST",
@@ -249,11 +248,11 @@
 
     <select class="form-select form-select-lg mb-3 select_box" id="BigSegment" aria-label=".form-select-lg example"
             onchange="gotya(this)">
-        <!-- option 자동화 기입을 onchange를 사용하여 시도해봤으나 실패..-->
-        <option disabled selected>운동분류 선택</option>
+        <!-- option 자동 기입을 onchange를 사용하여 시도해봤으나 실패..-->
+        <option disabled selected>운동 분류 선택</option>
         <option value="pt">PT</option>
-        <option value="aerobic">aerobic</option>
-        <option value="anaerobic">anaerobic</option>
+        <option value="aerobic">유산소 운동</option>
+        <option value="anaerobic">무산소 운동</option>
 
     </select>
     <select class="form-select form-select-lg mb-3 select_box" id="SmallSegment" aria-label=".form-select-lg example"
