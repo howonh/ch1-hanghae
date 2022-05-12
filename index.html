@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <title>운동 칼로리 계산기</title>
+
+    <!-- Bulma CSS 링크 -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.1/css/bulma.min.css">
+
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC"
+          crossorigin="anonymous">
+
+    <!-- JS -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-cookie/1.4.1/jquery.cookie.js"></script>
+
+    <!-- font -->
+    <link href="https://fonts.googleapis.com/css2?family=Do+Hyeon&display=swap" rel="stylesheet">
+
+    <style>
+        * {
+            font-family: 'Do Hyeon', sans-serif;
+        }
+
+        .background {
+            background-image: url("https://img.freepik.com/free-vector/gym-for-fitness-and-workout-exercise-illustration-man-woman-people-character-training-sport-cartoon-healthy-lifestyle_109722-2008.jpg?w=2000");
+            background-repeat: no-repeat;
+            background-size: cover;
+            height: 100vh;
+            background-position: center;
+        }
+
+        .level-item {
+            width: 95%;
+            max-width: 300px;
+            height: 95%;
+            max-height: 300px;
+            margin: auto 200px auto 800px;
+        }
+
+        .level-item1 {
+            margin-right: 300px;
+        }
+
+        .section {
+            width: 600px;
+            max-width: 100vw;
+            margin: auto auto 50px auto;
+            box-shadow: 0px 0px 3px 0px gray;
+            background-color: white;
+        }
+
+        .button {
+            display: block;
+            margin: 10px auto;
+        }
+
+        .main_post {
+            width: 600px;
+            max-width: 100vw;
+            margin: auto auto 50px auto;
+            box-shadow: 0px 0px 3px 0px gray;
+            padding-top: 50px;
+            padding-bottom: 50px;
+            background-color: white;
+
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+
+        }
+
+        .select_box {
+            width: 300px;
+        }
+
+        .input {
+            display: block;
+            margin: 50px auto 30px auto;
+            width: 300px;
+        }
+
+        .card {
+            display: block;
+            margin: 50px auto;
+            width: 300px;
+        }
+
+        .content {
+            text-align: center;
+            display: flex;
+
+        }
+
+        #result_card {
+            display: none;
+        }
+
+        .result_box {
+            margin-left: 10px;
+            margin-right: 10px;
+        }
+
+    </style>
+    <script>
+
+        // 첫번째 SELECT BOX를 선택했다면 그에 맞는 XX_list_up() 함수를 호출합니다.
+        function gotya(bigseg) {
+            var getvalue = $(bigseg).val();
+            if (getvalue == 'aerobic') {
+                $('#SmallSegment').empty(); // 두번째 SELECT BOX 에 추가하기 전에 초기화 합니다.
+                aerobic_list_up();
+            } else if (getvalue == 'pt') {
+                $('#SmallSegment').empty();
+                pt_list_up();
+            } else if (getvalue == 'anaerobic') {
+                $('#SmallSegment').empty();
+                anaerobic_list_up();
+            }
+            // 두번째 SELECT BOX 의 기본값이 숨김이라, 두번째 SELECT BOX 생성한 후 보여줍니다.
+            $('#SmallSegment').show()
+
+            // 전역변수 already_selected 로 운동 분류를 선택했는지 검사합니다.
+            already_selected = true;
+        };
+
+
+        // make_ajax_call() 함수는 parameter 로 받은 운동 분류에 따라 두번째 SELECT BOX 에 option 을 추가합니다.
+        function make_ajax_call(exer_type) {
+            $.ajax({
+                type: "POST",
+                url: "/api/sel_exer_type",
+                data: {exer_type_give: $('#BigSegment').val()},
+                success: function (response) {
+                    let exer_list = response[exer_type];
+                    for (let i = 0; i < exer_list.length; i++) {
+                        let exer_name = exer_list[i]['exer_name'];
+                        $('#SmallSegment').append(`<option value=${exer_name}>${exer_name}</option>`)
+                    }
+                }
+            })
+        }
+
+        function pt_list_up() {
+            make_ajax_call('pt')
+        }
+
+
+        function aerobic_list_up() {
+            make_ajax_call('aerobic')
+        }
+
+
+        function anaerobic_list_up() {
+            make_ajax_call('anaerobic')
+        }
+
+
+        // 기입된 값과서버에서 받은 데이터로 결과값을 도출하는 함수입니다.
+        function call_result() {
+
+            // 첫번째 SELECT BOX 에서 운동 분류를 선택했는지 검사합니다.
+            if (window.already_selected == true) {
+                let weight = $('#weight_give').val();
+                let time = $('#time_give').val();
+
+                // 기입된 모든 값이 숫자를 제외한 다른 문자가 있는지 검사합니다.
+                if (canyourunit(weight, time) == false) {
+                    alert('숫자를 입력해주세요.');
+                }
+                // 위의 모든 검사를 통과했다면, 결과창을 띄워줍니다.
+                else {
+                    $.ajax({
+                        type: "POST",
+                        url: "/api/get_exer_result",
+                        data: {exer_type_give: $('#BigSegment').val(), exer_name_give: $('#SmallSegment').val()},
+                        success: function (response) {
+                            let met = response['exer_info']['met'];
+                            let result = (0.0175 * met * weight * time);
+                            let real_result = Math.round(result)
+                            $('#result').empty();                                  // append 해주기 전, 초기화 합니다.
+                            $('#result').append(`<span>${real_result}</span>`);    // 결과값을 html 파일에 기입합니다.
+                            $('#result_card').show()
+                        }
+                    })
+                }
+            }
+
+            // 첫번째 SELECT BOX 를 선택하지않고 계산하기 버튼을 눌렀을 때 알림을 띄웁니다.
+            else {
+                alert('먼저 운동을 선택해주세요.')
+            }
+        }
+
+
+        // 숫자만 기입했는지 검사하는 함수입니다.
+        function canyourunit(...name) {
+            var regExp = /^[0-9]+$/;
+            for (let i = 0; i < name.length; i++) {
+                if (!regExp.test(name[i])) {
+                    return false;
+                }
+            }
+        };
+
+
+        // 로그아웃
+        function sign_out() {
+            $.removeCookie('mytoken', {path: '/'});
+            alert('로그아웃!')
+            window.location.href = "/"
+        }
+
+    </script>
+</head>
+<body class="background">
+<nav class="level">
+
+    <p class="level-item has-text-centered">
+        <img src="https://velog.velcdn.com/images/ihowork/post/c8bd56ba-7d0d-41be-a9ac-c9766b998d46/image.png">
+    </p>
+
+    <div class="level-item1 has-text-centered">
+        <button class="button is-danger" type="reset" onclick="sign_out()">로그아웃</button>
+    </div>
+</nav>
+
+<section class="section">
+    <div class="container">
+        <h1 class="title">MET지수란?</h1>
+        <h2 class="subtitle">
+            MET는 1분간 소비되는 단위 체중당 에너지 소비량(kcal)입니다.<br>
+            MET가 높은 운동일수록 많은 에너지가 소비됩니다.
+        </h2>
+    </div>
+</section>
+
+
+<div class="main_post">
+
+
+    <select class="form-select form-select-lg mb-3 select_box" id="BigSegment" aria-label=".form-select-lg example"
+            onchange="gotya(this)">
+        <!-- option 자동 기입을 onchange를 사용하여 시도해봤으나 실패..-->
+        <option disabled selected>운동 분류 선택</option>
+        <option value="pt">PT</option>
+        <option value="aerobic">유산소 운동</option>
+        <option value="anaerobic">무산소 운동</option>
+
+    </select>
+    <select class="form-select form-select-lg mb-3 select_box" id="SmallSegment" aria-label=".form-select-lg example"
+            style="display: none;">
+        <option disabled selected>선택</option>
+    </select>
+
+
+    <div>
+        <input class="input is-normal" type="text" placeholder="체중을 입력해주세요. (Kg)" id="weight_give">
+        <input class="input is-normal" type="text" placeholder="시간을 입력해주세요. (분)" id="time_give">
+        <button class="button is-primary is-active" onclick="call_result()">계산하기</button>
+    </div>
+    <div class="card" id="result_card">
+        <div class="card-content">
+            <div class="content">
+                <p>예상 소모 칼로리는 </p>
+                <div class="result_box" id="result">
+
+                </div>
+
+                <p>Kcal 입니다.</p>
+            </div>
+            <div>
+                <p>Made by : {{ made_by }}</p>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>
